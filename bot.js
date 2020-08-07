@@ -14,23 +14,28 @@ client.on('message', message => {
     if (message.author.id == client.user.id) return;
     if (!message.content.startsWith(config.prefix)) return;
     let args = message.content.toLowerCase().replace(/^\-/, '').split(' ');
+    let thread = undefined
     switch (args[0]) {
         case "latest":
-            getLatest(message);
+            thread = "newest"
+            getHackerNews(message,thread);
             break;
         case "news":
-            getNews(message);
+            thread = "news"
+            getHackerNews(message,thread);
             break;
         case "ask":
-            getAsk(message);
+            thread = "ask"
+            getHackerNews(message,thread);
             break;
         case "past":
-            getPast(message);
+            thread = "front"
+            getHackerNews(message,thread);
             break;
         case "show":
-            getShow(message);
+            thread = "show"
+            getHackerNews(message,thread);
             break;
-        
         default:
             break;
     }
@@ -43,99 +48,23 @@ function timestamp() {
     let date = new Date();
     return `[${date.toDateString()}]`
 }
-//gets the latest submission on https://news.ycombinator.com/newest then outputs into message's channel.
-function getLatest(message) {
+//function for fetching most types of submissions on news.ycombinator.com
+function getHackerNews(message,thread) {
     try{
-    request({ url: `https://news.ycombinator.com/newest` }, function (error, response, body) {
-        console.log(`Fetching https://news.ycombinator.com/newest`);
+    request({ url: `https://news.ycombinator.com/${thread}` }, function (error, response, body) {
+        console.log(`Fetching https://news.ycombinator.com/${thread}`);
         let output = body.match(RegExp(/">1\..*_(.*vote)/))
         output = (output[0].match(RegExp(/_[^']+/)));
         output = output[0].replace('_', '');
         request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
             console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
-            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
+            let embed = new Discord.MessageEmbed()
                 .setColor('#ff0000')
                 .setTitle(body.title)
                 .addField('Submitted by', `${body.by}`, false)
                 .addField('URL', `${body.url}`, false)
                 .setFooter(`https://news.ycombinator.com/item?id=${output}`);
-            message.channel.send(hackerNewsLatest_Embed);
-        })
-    })} catch(err){}
-}
-function getNews(message) {
-    try{
-    request({ url: `https://news.ycombinator.com/news` }, function (error, response, body) {
-        console.log(`Fetching https://news.ycombinator.com/news`);
-        let output = body.match(RegExp(/">1\..*_(.*vote)/))
-        output = (output[0].match(RegExp(/_[^']+/)));
-        output = output[0].replace('_', '');
-        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
-            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
-            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
-                .setColor('#ff0000')
-                .setTitle(body.title)
-                .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false)
-                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
-            message.channel.send(hackerNewsLatest_Embed);
-        })
-    })} catch(err){}
-}
-function getAsk(message) {
-    try{
-    request({ url: `https://news.ycombinator.com/ask` }, function (error, response, body) {
-        console.log(`Fetching https://news.ycombinator.com/ask`);
-        let output = body.match(RegExp(/">1\..*_(.*vote)/))
-        output = (output[0].match(RegExp(/_[^']+/)));
-        output = output[0].replace('_', '');
-        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
-            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
-            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
-                .setColor('#ff0000')
-                .setTitle(body.title)
-                .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false)
-                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
-            message.channel.send(hackerNewsLatest_Embed);
-        })
-    })} catch(err){}
-}
-function getPast(message) {
-    try{
-    request({ url: `https://news.ycombinator.com/front` }, function (error, response, body) {
-        console.log(`Fetching https://news.ycombinator.com/front`);
-        let output = body.match(RegExp(/">1\..*_(.*vote)/))
-        output = (output[0].match(RegExp(/_[^']+/)));
-        output = output[0].replace('_', '');
-        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
-            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
-            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
-                .setColor('#ff0000')
-                .setTitle(body.title)
-                .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false)
-                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
-            message.channel.send(hackerNewsLatest_Embed);
-        })
-    })} catch(err){}
-}
-function getShow(message) {
-    try{
-    request({ url: `https://news.ycombinator.com/show` }, function (error, response, body) {
-        console.log(`Fetching https://news.ycombinator.com/show`);
-        let output = body.match(RegExp(/">1\..*_(.*vote)/))
-        output = (output[0].match(RegExp(/_[^']+/)));
-        output = output[0].replace('_', '');
-        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
-            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
-            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
-                .setColor('#ff0000')
-                .setTitle(body.title)
-                .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false)
-                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
-            message.channel.send(hackerNewsLatest_Embed);
+            message.channel.send(embed);
         })
     })} catch(err){}
 }
