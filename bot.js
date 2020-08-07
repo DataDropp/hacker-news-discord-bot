@@ -24,6 +24,13 @@ client.on('message', message => {
         case "ask":
             getAsk(message);
             break;
+        case "past":
+            getPast(message);
+            break;
+        case "show":
+            getShow(message);
+            break;
+        
         default:
             break;
     }
@@ -50,7 +57,8 @@ function getLatest(message) {
                 .setColor('#ff0000')
                 .setTitle(body.title)
                 .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false);
+                .addField('URL', `${body.url}`, false)
+                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
             message.channel.send(hackerNewsLatest_Embed);
         })
     })} catch(err){}
@@ -68,7 +76,8 @@ function getNews(message) {
                 .setColor('#ff0000')
                 .setTitle(body.title)
                 .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false);
+                .addField('URL', `${body.url}`, false)
+                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
             message.channel.send(hackerNewsLatest_Embed);
         })
     })} catch(err){}
@@ -86,7 +95,46 @@ function getAsk(message) {
                 .setColor('#ff0000')
                 .setTitle(body.title)
                 .addField('Submitted by', `${body.by}`, false)
-                .addField('URL', `${body.url}`, false);
+                .addField('URL', `${body.url}`, false)
+                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
+            message.channel.send(hackerNewsLatest_Embed);
+        })
+    })} catch(err){}
+}
+function getPast(message) {
+    try{
+    request({ url: `https://news.ycombinator.com/front` }, function (error, response, body) {
+        console.log(`Fetching https://news.ycombinator.com/front`);
+        let output = body.match(RegExp(/">1\..*_(.*vote)/))
+        output = (output[0].match(RegExp(/_[^']+/)));
+        output = output[0].replace('_', '');
+        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
+            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
+            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
+                .setColor('#ff0000')
+                .setTitle(body.title)
+                .addField('Submitted by', `${body.by}`, false)
+                .addField('URL', `${body.url}`, false)
+                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
+            message.channel.send(hackerNewsLatest_Embed);
+        })
+    })} catch(err){}
+}
+function getShow(message) {
+    try{
+    request({ url: `https://news.ycombinator.com/show` }, function (error, response, body) {
+        console.log(`Fetching https://news.ycombinator.com/show`);
+        let output = body.match(RegExp(/">1\..*_(.*vote)/))
+        output = (output[0].match(RegExp(/_[^']+/)));
+        output = output[0].replace('_', '');
+        request({ url: `https://hacker-news.firebaseio.com/v0/item/${output}.json`, json: true }, function (error, response, body) {
+            console.log(`Fetching https://hacker-news.firebaseio.com/v0/item/${output}.json`)
+            let hackerNewsLatest_Embed = new Discord.MessageEmbed()
+                .setColor('#ff0000')
+                .setTitle(body.title)
+                .addField('Submitted by', `${body.by}`, false)
+                .addField('URL', `${body.url}`, false)
+                .setFooter(`https://news.ycombinator.com/item?id=${output}`);
             message.channel.send(hackerNewsLatest_Embed);
         })
     })} catch(err){}
