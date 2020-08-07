@@ -3,13 +3,11 @@ const Discord = require('discord.js');
 const config = require('./config');
 const client = new Discord.Client();
 const request = require('request');
-const { title } = require('process');
-const { get } = require('request');
-//listen for messages
-
+//Tells console when bot ready
 client.on('ready', () => {
     console.log(`${timestamp()} ${client.user.tag} sucessfully logged in!`)
 });
+//listen for messages
 client.on('message', message => {
     if (message.author.id == client.user.id) return;
     if (!message.content.startsWith(config.prefix)) return;
@@ -40,7 +38,6 @@ client.on('message', message => {
             break;
     }
 });
-
 //login with encoded token
 client.login(Buffer.from(config.token, 'hex').toLocaleString());
 //timestamp
